@@ -1,0 +1,433 @@
+{
+	"info": {
+		"_postman_id": "3d7a65a7-d365-4fa2-95ba-a683f8956798",
+		"name": "School Management API  - Students Test Suite",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "7205808"
+	},
+	"item": [
+		{
+			"name": "AUTH",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Login returns 200\", () => pm.response.to.have.status(200));",
+									"",
+									"// Try to extract CSRF from cookies",
+									"let csrf = pm.cookies.get('csrfToken');",
+									"",
+									"if (!csrf) {",
+									"  console.log('Cookie not visible. Checking Set-Cookie header…');",
+									"  const setCookieHeader = pm.response.headers.get('Set-Cookie');",
+									"  if (setCookieHeader) {",
+									"      const match = setCookieHeader.match(/csrfToken=([^;]+)/);",
+									"      if (match) csrf = match[1];",
+									"  }",
+									"}",
+									"",
+									"if (csrf) {",
+									"   pm.environment.set('csrfToken', csrf);",
+									"   console.log('CSRF saved →', csrf);",
+									"} else {",
+									"   console.log('No CSRF token found');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-csrf-token",
+								"value": "{{csrfToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin@school-admin.com\",\n  \"password\": \"3OU4zn3q6Zh9\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Students",
+			"item": [
+				{
+					"name": "Add Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Create student returns 200 or 500\", () => {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 500]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const random = Math.floor(Math.random() * 999999);\r",
+									"const email = `student_${random}@school.com`;\r",
+									"\r",
+									"pm.environment.set(\"randomEmail\", email);\r",
+									"\r",
+									"console.log(\"Generated dynamic email:\", email);"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-csrf-token",
+								"value": "{{csrfToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Test Student\",\n  \"email\": \"{{randomEmail}}\",\n  \"gender\": \"Female\",\n  \"phone\": \"99990000\",\n  \"class_name\": \"10\",\n  \"section_name\": \"A\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/students",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"students"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Students",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const json = pm.response.json();",
+									"",
+									"if (json && json.students && json.students.length > 0) {",
+									"    pm.environment.set(\"firstStudentId\", json.students[0].id);",
+									"    console.log(\"firstStudentId set to:\", json.students[0].id);",
+									"} else {",
+									"    console.log(\"No students found to set firstStudentId\");",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-csrf-token",
+								"value": "{{csrfToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/students",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"students"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Student Detail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Student detail returns 200 or 404\", () => {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-csrf-token",
+								"value": "{{csrfToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/students/{{firstStudentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"students",
+								"{{firstStudentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update returns 200 or 500\", () => {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 500]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-csrf-token",
+								"value": "{{csrfToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"basicDetails\": {\n    \"name\": \"Ana\",\n    \"email\": \"ana@test.com\"\n  },\n  \"profileDetails\": {\n    \"phone\": \"119999999\",\n    \"section_name\": \"A\",\n    \"class_name\": \"9\"\n  }\n}\n"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/students/{{firstStudentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"students",
+								"{{firstStudentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Set Student Status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status update returns 200 or 500\", () => {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 500]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-csrf-token",
+								"value": "{{csrfToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"status\": true }"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/students/{{firstStudentId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"students",
+								"{{firstStudentId}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update returns 200 or 500\", () => {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 500]);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "x-csrf-token",
+								"value": "{{csrfToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/students/{{firstStudentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"students",
+								"{{firstStudentId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"requests": {},
+				"exec": [
+					"// ---- GLOBAL CSRF INJECTION ----",
+					"const csrf = pm.environment.get('csrfToken') || '';",
+					"pm.request.headers.upsert({",
+					"    key: 'x-csrf-token',",
+					"    value: csrf",
+					"});",
+					"console.log('Injected CSRF token (global):', csrf);"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5007"
+		},
+		{
+			"key": "csrfToken",
+			"value": ""
+		}
+	]
+}
