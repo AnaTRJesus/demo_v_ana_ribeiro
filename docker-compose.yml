@@ -1,0 +1,19 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:14
+    container_name: school_postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: school_mgmt
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./seed_db:/docker-entrypoint-initdb.d
+
+volumes:
+  postgres_data:
