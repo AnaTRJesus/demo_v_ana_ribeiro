@@ -14,26 +14,36 @@ export const VerifyCertificatePage: React.FC = () => {
   const [result, setResult] = React.useState<null | boolean>(null);
   const [isVerifying, setIsVerifying] = React.useState(false);
 
-  const handleVerify = async () => {
-    try {
-      setIsVerifying(true);
-      setResult(null);
+const handleVerify = async () => {
+  try {
+    setIsVerifying(true);
+    setResult(null);
 
-      const contract = await getCertificateContract();
-      const isValid: boolean = await contract.verifyCertificate(
+    const contract = await getCertificateContract();
+
+    let isValid = false;
+
+    try {
+      // chamada segura
+      isValid = await contract.verifyCertificate(
         Number(certId),
         Number(studentId),
         cid
       );
-
-      setResult(isValid);
-    } catch (error: any) {
-      console.error(error);
-      toast.error(error?.message ?? 'Erro ao verificar certificado');
-    } finally {
-      setIsVerifying(false);
+    } catch (e) {
+      // erro de retorno vazio (0x)
+      isValid = false;
     }
-  };
+
+    setResult(isValid);
+  } catch (error: any) {
+    console.error(error);
+    toast.error(error?.message ?? 'Erro ao verificar certificado');
+  } finally {
+    setIsVerifying(false);
+  }
+};
+
 
   return (
     <>
