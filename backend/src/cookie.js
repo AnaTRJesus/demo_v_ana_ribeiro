@@ -1,32 +1,36 @@
 const { env } = require("./config");
 
+const isProduction = env.NODE_ENV === "production";
+
 const cookieOptions = {
-  secure: true,
-  sameSite: "lax",
-  domain: env.COOKIE_DOMAIN,
+  httpOnly: true,
+  secure: isProduction ? true : false,        // localhost → false
+  sameSite: isProduction ? "none" : "lax",    // localhost → lax
+  domain: isProduction ? env.COOKIE_DOMAIN : undefined,  // localhost NÃO tem domain
 };
 
 const setAccessTokenCookie = (res, accessToken) => {
   res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    maxAge: env.JWT_ACCESS_TOKEN_TIME_IN_MS,
     ...cookieOptions,
+    maxAge: env.JWT_ACCESS_TOKEN_TIME_IN_MS,
   });
 };
+
 const setRefreshTokenCookie = (res, refreshToken) => {
   res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    maxAge: env.JWT_REFRESH_TOKEN_TIME_IN_MS,
     ...cookieOptions,
+    maxAge: env.JWT_REFRESH_TOKEN_TIME_IN_MS,
   });
 };
+
 const setCsrfTokenCookie = (res, csrfToken) => {
   res.cookie("csrfToken", csrfToken, {
-    httpOnly: false,
-    maxAge: env.CSRF_TOKEN_TIME_IN_MS,
     ...cookieOptions,
+    httpOnly: false,   // CSRF token deve ser acessível no client
+    maxAge: env.CSRF_TOKEN_TIME_IN_MS,
   });
 };
+
 const setAllCookies = (res, accessToken, refreshToken, csrfToken) => {
   setAccessTokenCookie(res, accessToken);
   setRefreshTokenCookie(res, refreshToken);
@@ -34,9 +38,15 @@ const setAllCookies = (res, accessToken, refreshToken, csrfToken) => {
 };
 
 const clearAllCookies = (res) => {
-  res.clearCookie("accessToken", cookieOptions);
-  res.clearCookie("refreshToken", cookieOptions);
-  res.clearCookie("csrfToken", cookieOptions);
+  const opt = {
+    secure: cookieOptions.secure,
+    sameSite: cookieOptions.sameSite,
+    domain: cookieOptions.domain,
+  };
+
+  res.clearCookie("accessToken", opt);
+  res.clearCookie("refreshToken", opt);
+  res.clearCookie("csrfToken", opt);
 };
 
 module.exports = {
