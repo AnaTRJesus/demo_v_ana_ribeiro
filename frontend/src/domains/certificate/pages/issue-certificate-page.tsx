@@ -42,29 +42,28 @@ export const IssueCertificatePage: React.FC = () => {
   const onSubmit = async (values: IssueCertificateForm) => {
     try {
       if (!isConnected) {
-        toast.error('Conecte a carteira antes de emitir o certificado');
+        toast.error('Connect the wallet before issuing the certificate.');
         return;
       }
 
-      // Versão simples: "CID" fake (string qualquer que representa metadado off-chain)
       const fakeCid = `ipfs://student-${values.studentId}-${Date.now()}`;
 
       const contract = await getCertificateContract();
       const tx = await contract.issueCertificate(values.studentId, fakeCid);
       const receipt = await tx.wait();
 
-      toast.success(`Certificado emitido! Tx: ${receipt?.hash ?? tx.hash}`);
+      toast.success(`Certificate issued! Tx: ${receipt?.hash ?? tx.hash}`);
       reset();
     } catch (error: any) {
       console.error(error);
-      toast.error(error?.message ?? 'Erro ao emitir certificado');
+      toast.error(error?.message ?? 'Error issuing certificate.');
     }
   };
 
   return (
     <>
       <PageContentHeader
-        title='Emitir Certificado On-chain'
+        title='Issue On-chain Certificate'
         icon={<AddCircleOutline />}
         actions={[]}
       />
@@ -128,7 +127,7 @@ export const IssueCertificatePage: React.FC = () => {
             loading={isSubmitting}
             sx={{ mt: 1 }}
           >
-            Emitir certificado
+            Issue certificate
           </LoadingButton>
         </Box>
       </Box>

@@ -14,7 +14,7 @@ declare global {
 }
 
 export const getCertificateContract = async () => {
-  if (!window.ethereum) throw new Error("MetaMask não encontrada");
+  if (!window.ethereum) throw new Error("MetaMask not found");
 
   const provider = new ethers.BrowserProvider(window.ethereum);
   const signer = await provider.getSigner();

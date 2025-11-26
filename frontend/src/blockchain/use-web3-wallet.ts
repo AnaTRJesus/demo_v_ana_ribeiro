@@ -17,7 +17,7 @@ export const useWeb3Wallet = () => {
   }, []);
 
   const connect = async () => {
-    if (!window.ethereum) throw new Error("MetaMask não instalada");
+    if (!window.ethereum) throw new Error("MetaMask not installed");
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     setAddress(accounts[0]);
   };

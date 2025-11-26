@@ -24,21 +24,19 @@ const handleVerify = async () => {
     let isValid = false;
 
     try {
-      // chamada segura
       isValid = await contract.verifyCertificate(
         Number(certId),
         Number(studentId),
         cid
       );
     } catch (e) {
-      // erro de retorno vazio (0x)
       isValid = false;
     }
 
     setResult(isValid);
   } catch (error: any) {
     console.error(error);
-    toast.error(error?.message ?? 'Erro ao verificar certificado');
+    toast.error(error?.message ?? 'Error verifying certificate.');
   } finally {
     setIsVerifying(false);
   }
@@ -48,7 +46,7 @@ const handleVerify = async () => {
   return (
     <>
       <PageContentHeader
-        title='Verificar Certificado On-chain'
+        title='Verify On-chain Certificate'
         icon={<CheckCircleOutline />}
         actions={[]}
       />
@@ -65,10 +63,10 @@ const handleVerify = async () => {
             onChange={(e) => setStudentId(e.target.value)}
           />
           <TextField
-            label='CID usado na emissão'
+            label='CID code used in issuing the code.'
             value={cid}
             onChange={(e) => setCid(e.target.value)}
-            helperText='Use exatamente o mesmo CID/string usado na emissão'
+            helperText='Use the exact same CID/string used in the emission.'
           />
 
           <LoadingButton
@@ -85,7 +83,7 @@ const handleVerify = async () => {
               color={result ? 'success.main' : 'error.main'}
               fontWeight={600}
             >
-              {result ? 'Certificado VÁLIDO ✅' : 'Certificado INVÁLIDO ou revogado ❌'}
+              {result ? 'Valid Certificate ✅' : 'Invalid or revoked certificate. ❌'}
             </Typography>
           )}
         </Box>
